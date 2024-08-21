@@ -35,7 +35,7 @@ This repository contains a React component that implements a search functionalit
 - `App.css`: Contains the styling for the component.
 - `data.js`: Contains a `linkMap` object that maps search terms to corresponding URLs.
 - `logo1.png`: The logo displayed at the top of the search component.
-- `SearchComponent.js`: The main React component that handles the search functionality using a Trie data structure.
+- `search.js`: The main React component that handles the search functionality using a Trie data structure.
 
 ## How It Works
 

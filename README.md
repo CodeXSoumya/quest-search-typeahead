@@ -14,8 +14,8 @@ This repository contains a React component that implements a search functionalit
 
 1. Clone this repository:
     ```bash
-    git clone https://github.com/yourusername/your-repo-name.git
-    cd your-repo-name
+    git clone https://github.com/CodeXSoumya/quest-search-typeahead.git
+    cd quest-search-typeahead
     ```
 
 2. Install dependencies:

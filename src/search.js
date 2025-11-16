@@ -34,11 +34,9 @@ class Trie {
   update({ word, searchFrequency }) {
     if (!word || word.length < 3) return;
     let node = this.root;
-    let depth = 0;
     for (const char of word) {
       node = this._getOrCreateChild(node, char);
-      if (depth >= 2) this._updateTopSuggestions(node, word, searchFrequency);
-      depth++;
+      this._updateTopSuggestions(node, word, searchFrequency);
     }
     node.searchFrequency = searchFrequency;
     node.isEndOfWord = true;
@@ -74,14 +72,20 @@ class Trie {
   search(prefix) {
     if (!prefix || prefix.length < 3) return [];
     const normalizedPrefix = prefix.toLowerCase().trim();
-    if (this.cache.has(normalizedPrefix)) return this.cache.get(normalizedPrefix);
+    
+    if (this.cache.has(normalizedPrefix)) {
+      return this.cache.get(normalizedPrefix);
+    }
+    
     const node = this._getNodeByWord(normalizedPrefix);
     const results = node ? node.topSuggestions : [];
     this.cache.set(normalizedPrefix, results);
+    
     if (this.cache.size > 100) {
       const firstKey = this.cache.keys().next().value;
       this.cache.delete(firstKey);
     }
+    
     return results;
   }
 
@@ -138,7 +142,6 @@ const SearchComponent = () => {
         const previousSearchTerms = Object.keys(linkMap);
         previousSearchTerms.forEach(term => trie.insert(term.toLowerCase()));
         setIsLoading(false);
-        console.log('Trie initialized:', trie.getStats());
       } catch (err) {
         console.error('Error initializing Trie:', err);
         setError('Failed to initialize search. Please refresh the page.');
@@ -148,11 +151,12 @@ const SearchComponent = () => {
     initializeTrie();
   }, [trie]);
 
-  const handleSearch = useCallback(() => {
+  const handleSearch = useCallback((query) => {
     try {
-      const query = searchQuery.trim().toLowerCase();
-      if (query.length >= 3) {
-        const results = trie.search(query);
+      const normalizedQuery = query.trim().toLowerCase();
+      
+      if (normalizedQuery.length >= 3) {
+        const results = trie.search(normalizedQuery);
         setSuggestions(results);
         setShowSuggestions(results.length > 0);
         setHighlightedIndex(-1);
@@ -165,7 +169,7 @@ const SearchComponent = () => {
       console.error('Search error:', err);
       setError('Search failed. Please try again.');
     }
-  }, [searchQuery, trie]);
+  }, [trie]);
 
   const handleSearchDebounced = useMemo(() => debounce(handleSearch, 150), [handleSearch]);
 
@@ -179,7 +183,7 @@ const SearchComponent = () => {
     const value = event.target.value;
     setSearchQuery(value);
     setError(null);
-    handleSearchDebounced();
+    handleSearchDebounced(value);
   };
 
   const updateSearchLinks = useCallback(term => {
@@ -355,9 +359,9 @@ const SearchComponent = () => {
           id="searchOptions"
           role="listbox"
           style={{
-            maxHeight: showSuggestions ? '400px' : '0',
-            overflowY: 'auto',
-            transition: 'max-height 0.3s ease'
+            display: showSuggestions ? 'block' : 'none',
+            maxHeight: '400px',
+            overflowY: 'auto'
           }}
         >
           {showSuggestions &&
